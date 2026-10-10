@@ -59,7 +59,7 @@ function flag(x, y, index) {
 }
 
 function beam(x1, x2, y) {
-  return `<rect class="fill" x="${f(x1)}" y="${f(y)}" width="${f(x2 - x1)}" height="${BEAM_T}"/>`;
+  return `<rect class="fill beam" x="${f(x1)}" y="${f(y)}" width="${f(x2 - x1)}" height="${BEAM_T}"/>`;
 }
 
 function dot(x, y) {
@@ -121,7 +121,7 @@ export function renderRhythm(bars, feel, opts = {}) {
   const spoken = [];
   let noteIndex = 0;
 
-  parts.push(`<line class="staff" x1="${LEFT}" y1="${STAFF_Y}" x2="${width - LEFT}" y2="${STAFF_Y}"/>`);
+  parts.push(`<line class="staff-line" x1="${LEFT}" y1="${STAFF_Y}" x2="${width - LEFT}" y2="${STAFF_Y}"/>`);
   for (let i = 0; i <= bars.length; i++) {
     const x = LEFT + i * BAR_W;
     parts.push(`<line class="barline" x1="${x}" y1="${STAFF_Y - 14}" x2="${x}" y2="${STAFF_Y + 14}"/>`);
@@ -132,18 +132,21 @@ export function renderRhythm(bars, feel, opts = {}) {
       const beatStart = barIndex * 4 + beatInBar;
       let pos = 0;
       const placed = tokens.map((token) => {
+        const length = DURATION_BEATS[token.d];
         const x = beatX(beatStart + pos);
-        pos += DURATION_BEATS[token.d];
-        return { token, x };
+        pos += length;
+        return { token, x, length };
       });
 
       const sounding = placed.filter((p) => !p.token.rest);
       const beamGroup = sounding.length >= 2 && sounding.every((p) => BEAMABLE.has(p.token.d));
 
-      for (const { token, x } of placed) {
+      for (const { token, x, length } of placed) {
         spoken.push(`${SPOKEN[token.d]}${token.rest ? " rest" : ""}`);
         if (token.rest) {
-          parts.push(rest(x - 3, STAFF_Y, token.d));
+          // Rests sit in the middle of the silence they stand for; at their
+          // onset they'd collide with the short note right before them.
+          parts.push(rest(x + (length * BEAT_W) / 2 - 4, STAFF_Y, token.d));
           continue;
         }
         const notes = [notehead(x, STAFF_Y), stem(x, STAFF_Y)];
