@@ -8,5 +8,8 @@
     "start": "node tools/serve.mjs",
     "test": "node --test \"test/*.test.js\"",
     "shots": "node tools/shot-app.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.43.1"
   }
 }
