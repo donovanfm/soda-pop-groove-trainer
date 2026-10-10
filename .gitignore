@@ -1,0 +1,6 @@
+node_modules/
+build/
+.DS_Store
+
+# The arranger's score is copyrighted; keep it local, never in the repo.
+*.pdf

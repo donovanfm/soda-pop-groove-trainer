@@ -1,0 +1,12 @@
+{
+  "name": "soda-pop-rhythm-practice",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ear and tapping drills for the dotted-eighth/sixteenth groove in Soda Pop (KPop Demon Hunters medley).",
+  "type": "module",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node --test \"test/*.test.js\"",
+    "shots": "node tools/shot-app.mjs"
+  }
+}
