@@ -427,12 +427,16 @@ function drawTapMarks(result, timeline) {
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "tap-marks");
   const patternBeats = patternLengthBeats(GROOVE);
+  const beatWidth = staff.beatX(1) - staff.beatX(0);
   result.notes.forEach((n, i) => {
     if (n.tap === null) return;
-    // n.tap is already latency-corrected by scoreTake.
-    const beat = (n.tap - timeline.patternStart) / timeline.spb;
-    const rep = timeline.notes[i].rep;
-    const x = staff.beatX(((beat % patternBeats) + patternBeats) % patternBeats);
+    // Place each mark relative to the note it was matched to, not by
+    // wrapping its absolute time: an early tap on a downbeat would
+    // otherwise land at the end of the previous bar.
+    const target = timeline.notes[i];
+    const errorBeats = n.errorMs / 1000 / timeline.spb;
+    const x = staff.beatX(target.beat - target.rep * patternBeats) + errorBeats * beatWidth;
+    const rep = target.rep;
     const abs = Math.abs(n.errorMs);
     const mark = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     mark.setAttribute("cx", x.toFixed(1));
