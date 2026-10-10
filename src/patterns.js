@@ -11,7 +11,7 @@
  * The section problem is that some players swing it: the 16th slides
  * from 3/4 of the way through the beat to 2/3 (a quarter-eighth
  * triplet), and in m. 48 the off-beat eighths drift from 1/2 to 2/3.
- * Each pattern therefore carries a "straight" notation (as written) and
+ * Each bar therefore carries a "straight" notation (as written) and
  * a "swung" notation (what the swingers are actually playing). The two
  * have the same notes in the same order; only the off-beat positions
  * differ, which is what lets scoring compare a tap to both targets.
@@ -74,32 +74,11 @@ const ANSWER = {
   pitches: [G3, G3, G3, F3, F3, E3],
 };
 
-export const PATTERNS = Object.freeze([
-  {
-    id: "call",
-    label: "m. 47",
-    name: "The call",
-    bars: [CALL],
-  },
-  {
-    id: "answer",
-    label: "m. 48",
-    name: "The answer",
-    bars: [ANSWER],
-  },
-  {
-    id: "groove",
-    label: "mm. 47–48",
-    name: "Full groove",
-    bars: [CALL, ANSWER],
-  },
-]);
-
-export function getPattern(id) {
-  const pattern = PATTERNS.find((p) => p.id === id);
-  if (!pattern) throw new Error(`Unknown pattern "${id}"`);
-  return pattern;
-}
+/** The two bars are drilled as one phrase: m. 48 only makes sense as the answer to m. 47. */
+export const GROOVE = Object.freeze({
+  label: "mm. 47–48",
+  bars: [CALL, ANSWER],
+});
 
 export function patternLengthBeats(pattern) {
   return pattern.bars.length * 4;

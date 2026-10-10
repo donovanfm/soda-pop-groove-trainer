@@ -1,7 +1,8 @@
 <!doctype html>
 <!--
   index.html — the whole app's markup. Three sections share the global
-  controls (which bar, tempo, click): Compare (hear/see both versions),
+  controls (tempo, click) and all drill the two-bar groove (mm. 47–48):
+  Compare (hear/see both versions),
   and two drills, "Which one?" (ear training) and "Tap it" (timing).
   Behaviour lives in src/main.js; rhythm data in src/patterns.js.
   Needs to be served over HTTP (ES modules): `npm start`.
@@ -31,10 +32,6 @@
     </header>
 
     <section class="controls" aria-label="Practice settings">
-      <div class="control">
-        <span class="control-label" id="pattern-label">Bars</span>
-        <div class="segmented" role="radiogroup" aria-labelledby="pattern-label" id="pattern-picker"></div>
-      </div>
       <div class="control control--tempo">
         <label class="control-label" for="tempo">Tempo</label>
         <div class="tempo-row">

@@ -145,31 +145,6 @@ p { margin: 0; }
   color: var(--muted);
 }
 
-.segmented {
-  display: inline-flex;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 3px;
-  background: var(--surface);
-}
-
-.segmented button {
-  border: 0;
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: var(--step--1);
-  padding: 6px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.segmented button[aria-checked="true"] {
-  background: var(--ink);
-  color: var(--paper);
-}
-
 .tempo-row { display: flex; align-items: center; gap: 10px; }
 .tempo-row input[type="range"] { flex: 1; min-width: 0; accent-color: var(--ink); }
 .tempo-value { min-width: 5.5em; text-align: right; }
@@ -512,10 +487,15 @@ p { margin: 0; }
 .colophon { color: var(--muted); font-size: var(--step--1); border-top: 1px solid var(--line); padding-top: 16px; }
 
 @media (max-width: 560px) {
-  .staff-row { grid-template-columns: minmax(0, 1fr) auto; }
-  .staff-meta { grid-column: 1 / -1; grid-auto-flow: column; justify-content: start; align-items: center; gap: 10px; }
+  /* Two bars need every pixel: staff spans the row, play button sits by the label. */
+  .staff-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "meta play" "staff staff";
+  }
+  .staff-meta { grid-area: meta; grid-auto-flow: column; justify-content: start; align-items: center; gap: 10px; }
+  .staff-row .staff { grid-area: staff; }
+  .staff-row .play-btn { grid-area: play; width: 44px; height: 44px; }
   .answers { grid-template-columns: 1fr; }
-  .segmented button { padding: 6px 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

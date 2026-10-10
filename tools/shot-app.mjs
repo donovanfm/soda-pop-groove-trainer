@@ -87,8 +87,7 @@ try {
       await shoot(page, "home", vpName, scheme);
 
       if (vpName === "desktop" && scheme === "light") {
-        // Groove view with the playhead mid-bar.
-        await page.click("#pattern-picker button:nth-child(3)");
+        // Playhead mid-groove.
         await page.click('[data-play="straight"]');
         await sleep(2600);
         await shoot(page, "groove-playing", vpName, scheme);
@@ -116,14 +115,15 @@ try {
     await page.close();
   }
 
-  // Tap it: a full take with key presses on the written rhythm (m. 47 ×4 at ♩=120).
+  // Tap it: a full take with key presses on the written rhythm (mm. 47–48 ×2 at ♩=120).
   for (const scheme of SCHEMES) {
     for (const [vpName, viewport] of VIEWPORTS) {
       if (vpName === "phone" && scheme === "light") continue;
       const page = await openPage(viewport, scheme, "#tap");
       const spb = 0.5;
       const onsets = [];
-      for (let rep = 0; rep < 4; rep++) for (const b of [0, 1, 2, 2.75]) onsets.push((4 + rep * 4 + b) * spb);
+      const groove = [0, 1, 2, 2.75, 4, 4.75, 5.5, 6, 6.75, 7.5];
+      for (let rep = 0; rep < 2; rep++) for (const b of groove) onsets.push((4 + rep * 8 + b) * spb);
       await page.focus("#tap-pad");
       await page.keyboard.press("Space");
       // Count-off starts ~0.12 s after the press; schedule keydowns from now.

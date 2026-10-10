@@ -13,7 +13,7 @@
  * notation) and is unit-tested; this file is DOM and glue only.
  */
 
-import { PATTERNS, getPattern, otherFeel, patternLengthBeats } from "./patterns.js";
+import { GROOVE, otherFeel, patternLengthBeats } from "./patterns.js";
 import { buildTimeline, secondsPerBeat } from "./timeline.js";
 import { renderRhythm } from "./notation.js";
 import { scoreTake } from "./scoring.js";
@@ -49,12 +49,10 @@ const store = {
 };
 
 const state = {
-  patternId: PATTERNS.some((p) => p.id === store.get("pattern")) ? store.get("pattern") : "call",
   bpm: Number(store.get("bpm", 120)) || 120,
   click: store.get("click", true) !== false,
 };
 
-const currentPattern = () => getPattern(state.patternId);
 const clickMode = () => (state.click ? "all" : "countIn");
 
 // ---------------------------------------------------------------------------
@@ -63,8 +61,7 @@ const clickMode = () => (state.click ? "all" : "countIn");
 const staffs = {};
 
 function mountStaff(key, host, feel, opts = {}) {
-  const pattern = currentPattern();
-  const rendered = renderRhythm(pattern.bars, feel, opts);
+  const rendered = renderRhythm(GROOVE.bars, feel, opts);
   host.innerHTML = rendered.svg;
   const svg = host.querySelector("svg");
   staffs[key] = { svg, beatX: rendered.beatX, playhead: svg.querySelector(".playhead") };
@@ -127,7 +124,7 @@ async function startTransport({ nextTake, onStop }) {
         break;
       }
       const timeline = buildTimeline({
-        pattern: currentPattern(),
+        pattern: GROOVE,
         feel: spec.feel,
         bpm: state.bpm,
         reps: spec.reps ?? 1,
@@ -185,7 +182,7 @@ function animate(t) {
 
   staff.svg.classList.add("is-playing");
   const beats = (heard - timeline.patternStart) / timeline.spb;
-  setPlayhead(staff, beats < 0 ? null : beats % patternLengthBeats(currentPattern()));
+  setPlayhead(staff, beats < 0 ? null : beats % patternLengthBeats(GROOVE));
 
   const lit = new Set(
     timeline.notes.filter((n) => heard >= n.time && heard < n.time + Math.max(n.duration, 0.12)).map((n) => String(n.index)),
@@ -195,33 +192,6 @@ function animate(t) {
 
 // ---------------------------------------------------------------------------
 // Global controls
-
-function renderPatternPicker() {
-  const picker = $("pattern-picker");
-  picker.innerHTML = "";
-  for (const p of PATTERNS) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.setAttribute("role", "radio");
-    b.setAttribute("aria-checked", String(p.id === state.patternId));
-    b.title = p.name;
-    b.textContent = p.label;
-    b.addEventListener("click", () => selectPattern(p.id));
-    picker.append(b);
-  }
-}
-
-function selectPattern(id) {
-  if (id === state.patternId) return;
-  stopTransport("user");
-  state.patternId = id;
-  store.set("pattern", id);
-  renderPatternPicker();
-  renderStaffs();
-  renderGapReadout();
-  resetQuizQuestion();
-  resetTap();
-}
 
 function setTempo(bpm) {
   const input = $("tempo");
@@ -237,11 +207,9 @@ function renderGapReadout() {
   const spb = secondsPerBeat(state.bpm);
   const sixteenth = Math.round((3 / 4 - 2 / 3) * spb * 1000);
   const eighth = Math.round((2 / 3 - 1 / 2) * spb * 1000);
-  let text = `At ♩ = ${state.bpm}, swinging moves the sixteenth <strong>${sixteenth} ms</strong> early.`;
-  if (state.patternId !== "call") {
-    text += ` In m. 48 it also drags the eighths on the "and" of 2 and 4 <strong>${eighth} ms</strong> late.`;
-  }
-  $("gap-readout").innerHTML = text;
+  $("gap-readout").innerHTML =
+    `At ♩ = ${state.bpm}, swinging moves each sixteenth <strong>${sixteenth} ms</strong> early. ` +
+    `In m. 48 it also drags the eighths on the "and" of 2 and 4 <strong>${eighth} ms</strong> late.`;
 }
 
 function updateTransportUi() {
@@ -370,7 +338,7 @@ let tapPhase = "idle"; // idle → running → done
 let taps = [];
 
 function tapReps() {
-  return TAP_BARS / currentPattern().bars.length;
+  return TAP_BARS / GROOVE.bars.length;
 }
 
 function setPad(main, sub, cls = "") {
@@ -431,7 +399,7 @@ function finishTap(reason, t) {
   tapPhase = "done";
   const { timeline } = t.takes[0];
   const swung = buildTimeline({
-    pattern: currentPattern(),
+    pattern: GROOVE,
     feel: "swung",
     bpm: timeline.bpm,
     reps: tapReps(),
@@ -458,7 +426,7 @@ function drawTapMarks(result, timeline) {
   const staff = staffs.tap;
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "tap-marks");
-  const patternBeats = patternLengthBeats(currentPattern());
+  const patternBeats = patternLengthBeats(GROOVE);
   result.notes.forEach((n, i) => {
     if (n.tap === null) return;
     // n.tap is already latency-corrected by scoreTake.
@@ -558,7 +526,6 @@ function selectTab(name) {
 // Wire up
 
 function init() {
-  renderPatternPicker();
   renderStaffs();
   setTempo(state.bpm);
   $("click-toggle").checked = state.click;
